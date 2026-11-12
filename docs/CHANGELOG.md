@@ -3,11 +3,216 @@
 | Атрибут | Значение |
 | --- | --- |
 | Назначение | История всех значимых изменений (CLAUDE.md §9) |
-| Версия | 4 |
-| Дата изменения | 2026-11-11 |
+| Версия | 5 |
+| Дата изменения | 2026-11-12 |
 | Статус | Active |
 
 Записи не удаляются. Новые записи добавляются сверху. Идентификаторы `CHG-NNNN` уникальны и повторно не используются.
+
+## CHG-0005 — System Design `sentinel-core` v0.1 и `sentinel-scan` (Design Accepted 2026-11-12; ранее Design Draft)
+
+| Поле | Значение |
+| --- | --- |
+| Change ID | CHG-0005 |
+| Дата и версия | 2026-11-12; Design Draft 0.1, ревизия 2 (0.2), ревизия 3 (0.3), ревизия 4 (0.4), ревизия 5 (0.5), ревизия 6 (0.6), ревизия 7 (0.7, интеграционный кандидат), ревизия 8 (0.8), ревизия 9 (0.9), ревизия 10 (0.10), ревизия 11 (0.11, отметки об утверждении), ревизия 12 (0.12, Design Accepted) и ревизия 13 (публикация по OA-11) — 2026-11-12; версия продукта не присвоена (кода нет). База — `develop@51422176cd3f56ecc62360f1549e402253a3bd07`, дерево `17cbb22c8e7562a6e38cfa315435b1c28e40334e` |
+| Инициатор | Владелец продукта: разрешение на CHG-0005 (design-only) от 2026-11-12 |
+| Что было | Проект `sentinel-core` и `sentinel-scan` отсутствовал; PROJECT_STATE.md и записи CHG-0003 и CHG-0004 в этом журнале не отражали публикацию и merge PR #1 и PR #2 |
+| Что изменено | Добавлены docs/architecture/SENTINEL_CORE_DESIGN.md, docs/architecture/SENTINEL_SCAN_CLI_DESIGN.md, docs/architecture/SENTINEL_CORE_TEST_PLAN.md (тест-кейсы TC-CORE-01…45, TC-SCAN-01…15, golden-ожидания G-01…G-30 — Not Run). Обновлены PROJECT_STATE.md (состояние после merge PR #1 и PR #2, текущая стадия) и этот журнал (публикация и merge CHG-0002…CHG-0004). Ревизия 5 — узкие изменения FAILURE_MODE_DESIGN.md §2.1, §3, §6.1, TEST_STRATEGY.md (TC-D05-08, TC-SEC-02), DECISION_LOG.md §4.1 (проекты D-18…D-21) по разрешению владельца. Ревизия 7 (интеграционный кандидат, Pending Owner Approval) — ADR-0018 §5 и риск T-14, FAILURE_MODE_DESIGN.md §2.2 и FI-D05-08, TEST_STRATEGY.md (TC-D12-01, TC-D14-01, TC-D14-02, TC-SEC-04), THREAT_MODEL.md T-14 |
+| Причина | Проектирование первого компонента по D-03 до начала реализации; актуализация состояния проекта |
+| Затронутые компоненты | Только документация: Detection Engine (`sentinel-core`), Policy Engine (PDP), CLI `sentinel-scan` |
+| Связанные требования | D-03, D-05, D-07, D-14, D-16, D-17; D-18…D-21 (Accepted 2026-11-12, ранее проекты); DLP-DETECTION-001…006, -015; DLP-POLICY-001…006, -011…015; DLP-ENDPOINT-021 |
+| Изменения API / БД | Нет реализованных изменений. Проект предлагает контракты API ядра и вывода CLI. Ревизия 5: новые поля и значения `InspectionResult`, `Decision` и записи бандла (`IncompleteInspectionAction`, `PartInspectionExclusion`, `PrecedenceConflictApproval`) — спецификация зависимостей SENTINEL_CORE_DESIGN.md §12.1. DATA_MODEL.md не изменялся |
+| Риски | Открытые вопросы O-03…O-10, O-12…O-14 и S-02…S-05; проекты решений D-18…D-21 ожидали подтверждения (утверждены 2026-11-12, OA-1…OA-4); производительность (R-11), выход за границу песочницы (R-25), утечки через вывод (T-21), ложные срабатывания (R-05). Все механизмы — NOT VERIFIED |
+| Совместимость | D-01…D-17, ADR-0016, ADR-0019 и CLAUDE.md не изменены; ADR-0018 изменён только в интеграционном кандидате rev7 (раздел 5, риск T-14; утверждено владельцем 2026-11-12, OA-5); изменения принятых документов — только в разрешённых владельцем разделах |
+| Миграции | Нет |
+| Результаты проверок | Документальные проверки выполнены локально скриптами вне репозитория: структура и перекрёстные ссылки документов (идентификаторы TC, O, S, R, T, ссылки на разделы), целевые проверки исправлений ревизий 2, 3, 4 и 5, рендеринг диаграмм Mermaid, одноразовая модель алгоритма SENTINEL_CORE_DESIGN.md §6.3 в модели независимых счётчиков (golden G-01…G-21, свойства на 20 000 случайных политиках), применимость патча к `develop@51422176` (`git apply --check`). Продуктовые тесты не применимы: кода нет; все TC — Not Run |
+| Откат | До фиксации — не применять патч. После фиксации — `git revert` |
+| Статус | **Design Accepted — 2026-11-12 (OA-10)**; ревизия 13 — ограниченная публикация по D-10 разрешена (OA-11, 2026-11-12): один документационный коммит в `docs/arch-0001`, Draft PR в `develop`; merge не разрешён. Ранее: ревизия 11 — решения владельца OA-1…OA-9 (D-18…D-21 Accepted; РВ-1…РВ-5, PG-1…PG-6, TA-1…TA-7 и SENTINEL_CORE_DESIGN.md §6.8 утверждены); независимое ревью rev10 — Ready for Owner Approval. Реализация — только по отдельному разрешению владельца. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified; числовые параметры — Proposed |
+
+### CHG-0005, ревизия 13 — ограниченная публикация по D-10 (OA-11, 2026-11-12)
+
+Основание: разрешение владельца продукта OA-11 от 2026-11-12. Объект публикации — пакет `CHG-0005-rev12-design-accepted.zip` (SHA-256 `245364ce4ef99f1fa0525947b6172b219e5f82f7d86ad057bac6a21c98fc829f`), дерево rev12 `72c71841986d6a753f758bea983a1a6469b91f2c`, протокол приёмки v1.3 (SHA-256 `46bc7cbd922f7eccc53440b0230ff5427877ddb34a0de8f4d85511c2e3ab24c8`).
+
+| Что было | Что изменено | Где |
+| --- | --- | --- |
+| Протокол приёмки v1.3 — вне репозитория | Добавлен протокол v1.4: решение OA-11, раздел о публикации и изменениях относительно дерева rev12 | docs/CHG-0005-ACCEPTANCE-PROTOCOL.md (новый) |
+| Отметки «в Git не опубликовано (OA-11)» | «публикация по D-10 разрешена 2026-11-12 (OA-11; Draft PR в develop)» | Шапки ADR-0018, FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md, THREAT_MODEL.md; SENTINEL_CORE_DESIGN.md — шапка (версия 0.13), разделы 12.2, 13.3 |
+| OA-11 не записан | Запись «Ограниченная публикация CHG-0005 по D-10 (OA-11)» в DECISION_LOG.md §7 | DECISION_LOG.md (версия 6.8) |
+| PROJECT_STATE — ожидание OA-11 | Публикация разрешена; Draft PR в develop; merge — решение владельца | PROJECT_STATE.md (версия 18) |
+
+Нормативное содержание принятого проекта не изменено (diff rev12 → rev13: только отметки, записи и протокол). SENTINEL_SCAN_CLI_DESIGN.md, SENTINEL_CORE_TEST_PLAN.md, DATA_MODEL.md, CLAUDE.md, D-01…D-21 не изменены. SHA коммита и номер PR вносятся следующим изменением документации. Сохраняются: Design Accepted; продуктовые тесты — Not Run; механизмы — NOT VERIFIED; PDP — Model Verified в документированных границах; числовые параметры — Proposed. Откат — закрыть Draft PR без merge; после merge — `git revert`.
+
+### CHG-0005, ревизия 12 — Design Accepted (OA-10, 2026-11-12)
+
+Основание: решение владельца продукта OA-10 от 2026-11-12. Объект принятия — архитектурное содержание rev10 с фиксацией OA-1…OA-9 в rev11: пакет `CHG-0005-rev11-owner-decisions.zip` (SHA-256 `45342e3c5a8b39bc0f487898def0dbf96300caf35f2210ddc408c3e129d311bd`), дерево rev11 `6bf6c733a2afa24b59916529bbad114b1b7cf58f`. Ревьюер независимо проверил фиксацию OA-1…OA-9 в rev11; блокирующих замечаний нет.
+
+| Что было | Что изменено | Где |
+| --- | --- | --- |
+| CHG-0005 — Design Draft, ожидает Design Accepted (OA-10) | Design Accepted 2026-11-12 (OA-10) | SENTINEL_CORE_DESIGN.md, SENTINEL_SCAN_CLI_DESIGN.md, SENTINEL_CORE_TEST_PLAN.md — шапки (версия 0.12, статус); SENTINEL_CORE_DESIGN.md — разделы 6.3, 13.3; SENTINEL_SCAN_CLI_DESIGN.md — раздел 9 |
+| OA-10 не записан | Запись «Design Accepted CHG-0005 (OA-10)» в DECISION_LOG.md §7; предыдущая запись OA-1…OA-9 не изменена | DECISION_LOG.md (версия 6.7) |
+| Заголовок записи CHG-0005 «(Design Draft)» | «(Design Accepted 2026-11-12; ранее Design Draft)»; статус записи | Этот журнал |
+
+Нормативное содержание не изменено: правки — только отметки статуса (diff rev11 → rev12). ADR, FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md, THREAT_MODEL.md, DATA_MODEL.md, CLAUDE.md, D-01…D-21 не изменены. Сохраняются: продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified в документированных границах; числовые параметры — Proposed. Публикация (OA-11) и реализация — отдельные решения. Откат — не применять diff rev11 → rev12.
+
+### CHG-0005, ревизия 11 — фиксация решений владельца OA-1…OA-9 (2026-11-12)
+
+Основание: независимое ревью rev10 — Ready for Owner Approval (CHG5-AR9-01 закрыт, PKG-01 и воспроизводимость деревьев подтверждены); протокол приёмки CHG-0005 v1.1; формальное подтверждение владельца продукта от 2026-11-12. Объект утверждения — пакет `CHG-0005-rev10-review.zip` (SHA-256 `e02405c96d1ca5df721f9c07212964cd382848a7518b9aa04d7051a49f468668`), дерево rev10 `012e02a1554d8af72974f38603cc03fd8210f4a2`.
+
+| Что было | Что изменено | Где |
+| --- | --- | --- |
+| D-18…D-21 — проекты (Proposed) в DECISION_LOG.md §4.1 | Accepted 2026-11-12 (OA-1…OA-4), перенесены в §1; таблица §4.1 сохранена как история и перечень условий; запись ревью и решений в §7 | DECISION_LOG.md (версия 6.6) |
+| РВ-1…РВ-5 — интеграционный кандидат, «вступает после Owner Approval» | Отметки: утверждено владельцем (OA-2 для РВ-2; OA-5…OA-8); в Git не опубликовано (OA-11) | ADR-0018, FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md, THREAT_MODEL.md (шапки и пометки Target Design); SENTINEL_CORE_DESIGN.md §12.2 |
+| Target Design (Proposed) по проектам D-18…D-21; PG-1…PG-6, TA-1…TA-7 и SENTINEL_CORE_DESIGN.md §6.8 — Proposed | Target Design по утверждённым решениям; требования утверждены (OA-9); числовые значения — Proposed | SENTINEL_CORE_DESIGN.md: шапка, разделы 4.1, 4.2, 6.3, 6.4, 6.7.1, 6.8, 12, 12.2, 13.3; SENTINEL_SCAN_CLI_DESIGN.md: шапка, разделы 7, 8; SENTINEL_CORE_TEST_PLAN.md: шапка, TC-CORE-11, раздел 5 |
+
+Нормативное содержание ревизии 10 не изменено: правки затрагивают только отметки статуса и утверждения (CHG-0005 rev11, diff rev10 → rev11). D-01…D-17, ADR-0016, ADR-0019, DATA_MODEL.md и CLAUDE.md не изменены. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified в документированных границах. Откат — не применять diff rev10 → rev11.
+
+### CHG-0005, ревизия 10 — узкое исправление CHG5-AR9-01 (2026-11-12)
+
+Основание: независимое review rev9 — замечание CHG5-AR9-01. Новый полный цикл не запускался.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| CHG5-AR9-01 | В пути `Engine::evaluate` хост заранее отключал записи, истекающие до дедлайна запроса, а повторное `Pdp::decide` выполнял только при смене состояния времени. По F-08 упреждающее отключение `PartInspectionExclusion` смягчало результат до фактического истечения: E1 до t = 105, дедлайн 130, PDP при t = 101, правило BLOCK при NOT `count(card) >= 1` — вместо BLOCK получался INDETERMINATE с fallback ALLOW_WITH_AUDIT | Финальное решение в обоих путях API — вызов `Pdp::decide` со входом, вычисленным хостом непосредственно перед вызовом по всем записям-отступлениям бандла, включая записи, недействительные при формировании запроса. Упреждение по дедлайну отменено. `Engine::evaluate` возвращает `Evaluation { inspection, provisional: ProvisionalDecision }`; предварительное решение — отдельный тип: не применяется, не записывается, не проецируется. Все поля решения и проекция `DisclosedFindings` — из финального вызова. INV-H3 переформулирован; отложенное применение требует повторного финального вызова. Обработка `Unavailable` и `CONTRADICTORY` через отсутствие действительных отступлений сохранена; утверждение, что она всегда безопаснее fallback хоста, удалено как недоказанное. INV-C15 уточнён: недействительное исключение не участвует в решении, результат может быть мягче, чем с записью | SENTINEL_CORE_DESIGN.md §2.3, §3, §5, §6.3, §6.8, §10.3 (INV-C15), §12.1, §13, §13.3; SENTINEL_CORE_TEST_PLAN.md; SENTINEL_SCAN_CLI_DESIGN.md §2, §4.2 | TC-CORE-45 (обновлён); G-26…G-30 |
+
+D-01…D-17, ADR, FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md, THREAT_MODEL.md, DECISION_LOG.md и DATA_MODEL.md в rev10 не изменены. D-18…D-21 — Proposed. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified с указанной границей независимости; протокол финального решения в модели выполняется по построению.
+
+### CHG-0005, ревизия 9 — узкое исправление CHG5-AR8-01 (2026-11-12)
+
+Основание: независимое review rev8 — предварительно Changes Requested (пакет `b269841d…`). Новый полный цикл не запускался.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| CHG5-AR8-01 | `DeviationValidity` входила только в `EvaluationRequest`; у раздельного `Pdp::decide(policy, context, inspection)` входа действительности не было; момент вычисления не определён | `Pdp::decide` принимает `&DeviationValidity`; тип — `Provided { time_state, valid_ids }` или `Unavailable`. Хост вычисляет вход непосредственно перед `Pdp::decide`; для `Engine::evaluate` — действительность на весь интервал до дедлайна и повторное `Pdp::decide` при смене состояния времени. Отсутствующий вход → все отступления недействительны (`UNAVAILABLE`); противоречивый → все недействительны (`CONTRADICTORY`); `EngineFault` не возникает. INV-H3 уточнён | SENTINEL_CORE_DESIGN.md §2.3, §5, §6.8, §12.1; SENTINEL_SCAN_CLI_DESIGN.md §2, §4.2 | TC-CORE-45 (Contract, Negative, Fault injection); G-25 |
+| Редакция SENTINEL_CORE_DESIGN.md §6.8 (F-08) | «Обе записи разрешают исход, который без них был бы строже» — неверно для `PartInspectionExclusion` | Разделено: утверждение — разрешающее; исключение меняет интерпретацию неизвестного; гарантия для недействительного исключения — семантика отсутствующей записи; для срока действия обе записи учитываются как разрешающие отступления (консервативно) | SENTINEL_CORE_DESIGN.md §6.8 | G-24 |
+| Граница Model Verified | Независимость оракула не оговорена | Оракул использует общие с алгоритмом функции конфликтов, подавления и выбора победителя; логику конфликтов независимо проверяют только заданные вручную ожидания | SENTINEL_CORE_DESIGN.md §13, §13.3; SENTINEL_CORE_TEST_PLAN.md §5 | — |
+| Пакет | Ревьюер не смог воспроизвести деревья из-за среды Git | В пакет добавлены проверка без Git (чистый Python: применение патчей и вычисление Git tree SHA) и деревья в tar | Пакет review | verify_nogit.py |
+
+D-01…D-17, ADR, FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md, THREAT_MODEL.md и DECISION_LOG.md в rev9 не изменены. D-18…D-21 — Proposed. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified с указанной границей независимости.
+
+### CHG-0005, ревизия 8 — узкие исправления CHG5-AR7-01, AR7-02, PKG-01 (2026-11-12)
+
+Основание: независимый аудит rev7 — Changes Requested, только узкие исправления (полный патч rev7 `412d31b4…`). Новый полный цикл не запускался.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| CHG5-AR7-01 | Срок действия `PartInspectionExclusion` и `PrecedenceConflictApproval` во время работы, в офлайне и при откате времени не определён | Записи — разрешающие отступления по FAILURE_MODE_DESIGN.md §4.5–§4.6: `expires_at`, `max_offline_validity`; действительность вычисляет хост (`DeviationValidity`, INV-H3); недействительное исключение не применяется, недействительное утверждение подавляет пару, fallback не ослабляется (INV-C15). Инварианты INV-T1…T5 не меняются | SENTINEL_CORE_DESIGN.md §2.3, §4.2, §6.1, §6.3, §6.8, §10.3; SENTINEL_SCAN_CLI_DESIGN.md §2, §4.2 | TC-CORE-43, TC-SCAN-15; G-24 |
+| CHG5-AR7-02 | Достоверное затенение BLOCK правилом только по контексту не требовало утверждения: классы (a) и (b) его не охватывали | Конфликт — любая пара h ≻ l (h — MONITOR или ALERT, l — BLOCK) с пересекающейся областью; класс (c); утверждение с ограниченной областью; во время работы — подавление без действительного утверждения; порядок правил не меняется | SENTINEL_CORE_DESIGN.md §6.3 шаг 2, §6.7, INV-C12 | TC-CORE-35, TC-CORE-44; G-23 |
+| PKG-01 | Отдельно приложенный SENTINEL_SCAN_CLI_DESIGN.md (blob `05315429…`) — копия из пакета rev5; в пакет rev7 актуальный файл не был отправлен | Канонический источник — полный патч; все отдельные файлы пакета пересобраны из применённого полного патча и сверены по Git blob SHA | Пакет rev8 | Сверка blob SHA |
+| Редакция SENTINEL_CORE_DESIGN.md §4.3 | Обещание «ни в одном случае не `NO_MATCH`» для ZIP с префиксом противоречило признанному остаточному риску; TC-CORE-34 ожидал отсутствие `NO_MATCH` для UTF-16 | Обещание ограничено случаями, когда срабатывают PG-1 или PG-4; остальное — остаточный риск; TC-CORE-01 и TC-CORE-34 приведены в соответствие; PG-1…PG-6 и O-14 сохранены | SENTINEL_CORE_DESIGN.md §4.3; SENTINEL_CORE_TEST_PLAN.md | TC-CORE-01, TC-CORE-34 |
+| Находка команды | Подавление пары могло исключить из fallback правило с `on_indeterminate = BLOCK` и тем ослабить результат (модель: 8 случаев из 20 000) | Fallback учитывает и правила, которые стали бы победителями без подавления (SENTINEL_CORE_DESIGN.md §6.3, шаг 8) | SENTINEL_CORE_DESIGN.md §6.3 | TC-CORE-43 |
+| Находка команды | Свойство «недействительное исключение строже действительного» в общем случае неверно: исключение меняет интерпретацию неизвестного (модель: 389 случаев из 10 000, в основном правила с отрицанием атома содержимого) | Гарантия сформулирована точно: недействительное исключение равносильно отсутствию записи | SENTINEL_CORE_DESIGN.md §6.8 | G-24 |
+
+F-01…F-06, R4-01…14, AR5-01…05, AR6-01 сохранены. D-01…D-17 и принятые ADR не изменены; FAILURE_MODE_DESIGN.md в rev8 не изменялся. D-18…D-21 — Proposed. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified.
+
+### CHG-0005, ревизия 7 — интеграционный кандидат (2026-11-12)
+
+Основание: независимый аудит rev6 — Conditional Approval; «CHG-0005 rev6: Final Normative Integration». Изменения принятых документов внесены только в локальный интеграционный кандидат поверх rev6, не применены к утверждённому Git baseline и вступают в силу после Owner Approval.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| CHG5-AR6-01 | INV-C11 утверждал, что `required_action` при `OUTCOME_INDEPENDENT_OF_UNKNOWN` берётся только из `IncompleteInspectionAction` — противоречие с INV-C13 | Запись задаёт действие только исхода «победителя нет»; итоговое — самое строгое среди возможных (SENTINEL_CORE_DESIGN.md §6.3, шаг 7). Формулировки выровнены в FAILURE_MODE_DESIGN.md §3, DECISION_LOG.md (D-19), TC-CORE-33 | SENTINEL_CORE_DESIGN.md §10.3; FAILURE_MODE_DESIGN.md §3; DECISION_LOG.md §4.1; SENTINEL_CORE_TEST_PLAN.md | TC-CORE-37 (контрпример); G-22 |
+| РВ-1 | ADR-0018 (раздел 5) и строка риска T-14 в терминах варианта A | Применён проект diff rev6; добавлено «проверенное частичное извлечение»: при отказе рабочего процесса без него — только `NOT_INSPECTED` | ADR-0018 (раздел 5); SENTINEL_CORE_DESIGN.md §4.1, §10.2 | TC-CORE-40; TC-D14-01 |
+| РВ-2 (a) | Фраза ограничения D-14 противоречила D-19 | Строка D-14 не изменена; в D-19 — оговорка о приоритете новой семантики над этой фразой | DECISION_LOG.md §4.1 | — |
+| РВ-3, РВ-4 | FAILURE_MODE_DESIGN.md §2.2, FI-D05-08, TC-D12-01, TC-D14-01, TC-D14-02, TC-SEC-04 | Применён проект diff rev6 | FAILURE_MODE_DESIGN.md, TEST_STRATEGY.md | Указанные TC |
+| РВ-5 | THREAT_MODEL.md T-14 | Применён проект diff rev6 | THREAT_MODEL.md | — |
+| OBS-02 | — | `input_digest` не свидетельствует о добросовестности рабочего процесса; результат `UNTRUSTED`; R-25 | SENTINEL_CORE_DESIGN.md §3.2, §13.1; ADR-0018 §5 | TC-CORE-41 |
+| OBS-03 | — | Код 0 в режиме `status` — успешное выполнение, а не ALLOW и не полное покрытие | SENTINEL_SCAN_CLI_DESIGN.md §4.3 | TC-SCAN-14 |
+| OBS-04 | — | Требования TA-1…TA-7 к отзыву и ротации `ReleaseTrustAnchors` до реализации `EnforcementReady`; вопрос O-16 | SENTINEL_CORE_DESIGN.md §6.7.1; SENTINEL_SCAN_CLI_DESIGN.md §2 | TC-CORE-42 |
+| SEC-01…03 | — | Сверены с DPR-01, DPR-02, DPR-05/06; самостоятельных правил не введено | SENTINEL_CORE_DESIGN.md §13.2 | — |
+| Согласованность | Порядок 12.2 перед 12.1; таблица рисков внутри 12.1 | Порядок исправлен; таблица соответствия решений и документов (SENTINEL_CORE_DESIGN.md §12.3); перечень Proposed и NOT VERIFIED (SENTINEL_CORE_DESIGN.md §13.3); O-15 — явная зависимость от TC-CORE-39 и риск ложного fallback BLOCK; Model Verified вместо «проверено» | SENTINEL_CORE_DESIGN.md §12, §13; SENTINEL_CORE_TEST_PLAN.md §5 | — |
+
+F-01…F-06 и R4-01…14 сохранены. D-01…D-17 не изменены (оговорка РВ-2 — в записи D-19). ADR-0016 и ADR-0019 не изменены. D-18…D-21 и изменения РВ-1…РВ-5 — Pending Owner Approval. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED; алгоритм — Model Verified.
+
+### CHG-0005, ревизия 6 — узкие исправления CHG5-AR5-01…05 (2026-11-12)
+
+Основание: независимое ревью rev5 — Changes Requested (полный патч rev5 `fc0972f1…`, дерево `721a1368…`). Новый полный цикл не запускался.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| CHG5-AR5-01 | Противоречия проекта D-19 с принятыми ADR-0018 (раздел 5), FI-D05-08, TC-D14-01, TC-SEC-04 не выявлены | Выявлены и перечислены 11 расхождений (AC-01…AC-11), в том числе ограничение D-14 и FAILURE_MODE_DESIGN.md §2.2. Принятые документы не изменены; проект изменений — отдельный diff вне патча; запрос разрешения владельцу | SENTINEL_CORE_DESIGN.md §12.2; DECISION_LOG.md §4.1 (D-19); PROJECT_STATE.md | — (критерии в проекте diff) |
+| CHG5-AR5-02 | `required_action` при ALLOW в нескольких мирах неоднозначен | Сравнены варианты; контракт: самое строгое возможное действие, `action_certainty`, `action_sources`, семантика аудита и ALERT; INV-C13 | SENTINEL_CORE_DESIGN.md §5, §6.3 шаг 7, §6.4, §10.3, §12.1; SENTINEL_SCAN_CLI_DESIGN.md §4.2 | TC-CORE-37; G-15, G-19 |
+| CHG5-AR5-03 | Поведение `file.class` при AMBIGUOUS не определено | Атомы `file.class` неизвестны; класс — измерение мира; непересечение по `file.class` доказывается только по константам бандла; `file.class` входит в условие (a) конфликта; INV-C14 | SENTINEL_CORE_DESIGN.md §4.3, §6.3, §6.7, §10.3 | TC-CORE-38; G-20 |
+| CHG5-AR5-04 | Утверждения о точности не ограничены моделью независимых счётчиков | Граница утверждений зафиксирована; ложный fallback BLOCK при связанных детекторах показан (G-21); алгоритм не изменён; вопрос O-15; корпусный тест | SENTINEL_CORE_DESIGN.md §6.3 шаг 6, §10.3 (INV-C2), §12, §13 | TC-CORE-39; G-21 |
+| CHG5-AR5-05 | Формулировки «нормативный», «целевое решение», «принятая редакция», «отклонённый вариант» | Заменены на Target Design (Proposed) до Owner Approval | SENTINEL_CORE_DESIGN.md, SENTINEL_SCAN_CLI_DESIGN.md, SENTINEL_CORE_TEST_PLAN.md, FAILURE_MODE_DESIGN.md §2.1, §3, §6.1, DECISION_LOG.md §4.1 | — |
+| Находка команды | При AMBIGUOUS правило ALERT, зависящее только от `file.class`, выше правила BLOCK давало разрешающий fallback против достоверного BLOCK без конфликта (найдено моделью после ввода измерения класса) | `file.class` включён в условие (a) | SENTINEL_CORE_DESIGN.md §4.3, §6.7 | TC-CORE-38; G-20 |
+| OBS-02…OBS-04 | Не зафиксированы | Текст замечаний команде не передан; формулировки не восстанавливаются по догадке | SENTINEL_CORE_DESIGN.md §13; PROJECT_STATE.md | — |
+
+F-01…F-03 и R4-01…14 сохранены. D-01…D-17, ADR и CLAUDE.md не изменены. D-18…D-21 — Proposed. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED.
+
+### CHG-0005, ревизия 5 — целевая интеграция решений и уточнений ревью DPR-01…07 (2026-11-12)
+
+Основание: независимое ревью DECISION_APPROVAL_PACKAGE_CHG-0005.md («CHG-0005 rev5: Conditional Decision Integration»). Идентификаторы DPR-01…07 — номера обязательных уточнений этого ревью в порядке их перечисления.
+
+| ID | Что было | Что сделано | Где | Тесты |
+| --- | --- | --- | --- | --- |
+| D-18 (O-01 B) | Неполнота → `NOT_INSPECTED`, найденное отбрасывается | `MATCH` при неполном покрытии; монотонные атомы; атом `inspection.incomplete` вместо `inspection.status = NOT_INSPECTED` | SENTINEL_CORE_DESIGN.md §4.1, §5, §6.1; FAILURE_MODE_DESIGN.md §2.1 | TC-CORE-25, G-04, G-05, G-11 |
+| D-19 (O-02 B) | Без явного условия → INDETERMINATE | INDETERMINATE, только если неизвестное может изменить вердикт; точная оценка по мирам; fallback среди возможных победителей | SENTINEL_CORE_DESIGN.md §6.3, §6.4; FAILURE_MODE_DESIGN.md §3, §6.1; TEST_STRATEGY.md | TC-CORE-12, -17, -32; G-01, G-02, G-09, G-15, G-17 |
+| D-20 (O-11 C) | Атом `uninspected_only` в правиле | Отдельная запись `PartInspectionExclusion`; атом удалён | SENTINEL_CORE_DESIGN.md §4.2, §6.7 | TC-CORE-28; G-06, G-07, G-12, G-16 |
+| D-21 (S-01 B) | Предложение | Target Design (Proposed); режим разработчика только параметром | SENTINEL_SCAN_CLI_DESIGN.md §7 | TC-SCAN-10, -13 |
+| DPR-01 | Разрешающий fallback мог перекрыть достоверный BLOCK | Проверка «Конфликт приоритетов» при компиляции и загрузке; запись `PrecedenceConflictApproval`; INV-C12 | SENTINEL_CORE_DESIGN.md §6.3, §6.7, §10.3; FAILURE_MODE_DESIGN.md §3 | TC-CORE-12, -35; G-10, G-13, G-14, G-18 |
+| DPR-02 | Источник MONITOR для `OUTCOME_INDEPENDENT_OF_UNKNOWN` не определён | Обязательная подписанная запись `IncompleteInspectionAction`; сигнал неполной инспекции отделён от потери возможности канала; INV-C11 | SENTINEL_CORE_DESIGN.md §6.1, §6.3, §6.7; FAILURE_MODE_DESIGN.md §3, §6.1 | TC-CORE-30, -33 |
+| DPR-03 | Приоритеты G-11 не заданы | R11 — 20, R12 — 10; обратный порядок — конфликт; INV-C10; property-тесты монотонности | SENTINEL_CORE_TEST_PLAN.md §5; SENTINEL_CORE_DESIGN.md §10.3 | TC-CORE-25, G-11 |
+| DPR-04 | Утверждение исключения через структуру ADR-0019 | Отдельная сущность `PartInspectionExclusion`; переиспользуются только требования к согласованию | SENTINEL_CORE_DESIGN.md §4.2 | TC-CORE-28 |
+| DPR-05 | PG-2: поиск сигнатур в привилегированном сервисе | Запрещён; проба — только в рабочем процессе, в v0.1 выключена; O-14; замер TC-CORE-36; идентификация всех полиглотов не обещается | SENTINEL_CORE_DESIGN.md §4.3, §12 | TC-CORE-34, -36 |
+| DPR-06 | Подозрительная сигнатура → неразобранная часть | `classification = AMBIGUOUS` отдельно от доказанных частей | SENTINEL_CORE_DESIGN.md §4.2, §4.3, §5 | TC-CORE-34; G-16 |
+| DPR-07 | OBS-02…04 не зафиксированы | Текст замечаний команде не передан; зафиксировано как ожидание в PROJECT_STATE.md | PROJECT_STATE.md | — |
+| Находка команды | Приближение «U выше W → INDETERMINATE» (Decision Approval Package, У-4) | Даёт ложный BLOCK при коррелированных порогах (выявлено моделью); заменено точной оценкой, приближение оставлено как шаг 5 | SENTINEL_CORE_DESIGN.md §6.3, §6.4 | TC-CORE-32; G-15, G-17 |
+| Находка команды | Условие конфликта (a) «оба `on_indeterminate` разрешающие» пропускало разрешающий fallback против достоверного BLOCK через третье правило (контрпример построен вручную и подтверждён моделью) | Условие (a): достаточно разрешающего `on_indeterminate` у правила MONITOR или ALERT, зависящего от содержимого | SENTINEL_CORE_DESIGN.md §6.7 | TC-CORE-35; G-14, G-18 |
+| Находка команды | Атом `uninspected_only` несовместим с O-02 B | Заменён исключением анализа частей | SENTINEL_CORE_DESIGN.md §4.2, §6.4 | G-12 |
+| Попутно | Строка риска «в CLI изоляции нет» устарела после ревизии 2 | Исправлена | SENTINEL_CORE_DESIGN.md §12 | — |
+
+D-01…D-17, ADR-0016, ADR-0018, ADR-0019, CLAUDE.md и DATA_MODEL.md не изменены. Решения D-18…D-21 — проекты (Proposed), статус Accepted не присвоен. Продуктовые тесты — Not Run; механизмы — NOT VERIFIED.
+
+### CHG-0005, ревизия 4 — исправления по внутреннему ревью ревизии 3 (2026-11-12)
+
+| ID | Исправление | Где |
+| --- | --- | --- |
+| R4-01 (HIGH) | Хеш не был связан с байтами, разобранными рабочим процессом. `TRUSTED_SNAPSHOT` — только при извлечении в том же процессе; извлечение в рабочем процессе — `UNTRUSTED` в v0.1; рабочий процесс возвращает `input_digest`, несовпадение с `full` → `CONTENT_CHANGED` | SENTINEL_CORE_DESIGN.md §3.2, §5; INV-C8; TC-CORE-26 |
+| R4-02 (HIGH) | INV-H2: ключ кэша — полный ключ FAILURE_MODE_DESIGN.md §12; в кэш — только `TRUSTED_SNAPSHOT`, `decision_origin = PDP`, ALLOW или BLOCK, `MATCH` или `NO_MATCH` при полном покрытии; INDETERMINATE, `NOT_INSPECTED` и fallback не кэшируются | SENTINEL_CORE_DESIGN.md §3.2; TC-CORE-26 |
+| R4-03 (HIGH) | Шаг 4 проверял наличие атома, а не его роль; значение атомов по содержимому при `NOT_INSPECTED` не было определено. Атомы по содержимому — UNKNOWN, логика Клини; атом `NOT_INSPECTED` — только конъюнктом верхнего уровня, под OR и NOT бандл отклоняется; понятие «допустимое основание» | SENTINEL_CORE_DESIGN.md §6.1, §6.3; TC-CORE-12, TC-CORE-27; G-09 |
+| R4-04 (HIGH) | Подлинность манифеста возможностей не проверялась. `CapabilityManifest::verify` по `ReleaseTrustAnchors`, отдельным от якорей политики; `load_enforcement_ready` принимает только `VerifiedManifest`; CLI: `--manifest-trust-anchor` | SENTINEL_CORE_DESIGN.md §2.3, §6.7; O-05; SENTINEL_SCAN_CLI_DESIGN.md §2; TC-CORE-27, TC-SCAN-11 |
+| R4-05 (HIGH) | CLI мог вернуть код 0 без вердикта. `EngineFault` → `error = ENGINE_FAULT`, `decision = null`, код 12; CLI fallback не применяет, `decision_origin` в выводе только `PDP`; код 0 только при записи без ошибки по каждому входу | SENTINEL_SCAN_CLI_DESIGN.md §4.2, §4.2.1, §4.3; SENTINEL_CORE_DESIGN.md §2.3, §10.2; TC-SCAN-03 |
+| R4-06 (MEDIUM) | Поиск конца центрального каталога ZIP в сервисе противоречил ADR-0018 (раздел 1). Только сигнатура в начале файла; ZIP с префиксом и полиглоты — `UNSUPPORTED_FORMAT` или `PARTIAL`, никогда `NO_MATCH` | SENTINEL_CORE_DESIGN.md §4.3; TC-CORE-01 |
+| R4-07 (MEDIUM) | Выбор победителя мог нарушить INV-C1: при `NOT_INSPECTED` победитель выбирается только среди допустимых оснований | SENTINEL_CORE_DESIGN.md §6.3; INV-C1; TC-CORE-12; G-10 |
+| R4-08 (LOW) | Комментарий к `required_action`: отсутствует только при `NO_RULE_MATCHED`; при INDETERMINATE — по шагу 8 | SENTINEL_CORE_DESIGN.md §5; SENTINEL_SCAN_CLI_DESIGN.md §4.2 |
+| R4-09 (MEDIUM) | TC-CORE-17 проверял вариант B и несуществующее состояние `HARD_EXPIRED`. Ожидания приведены к варианту A и состояниям ABSENT, INVALID, EXPIRED | SENTINEL_CORE_TEST_PLAN.md: TC-CORE-17 |
+| R4-10 (MEDIUM) | Смешение POLICY_INVALID и POLICY_ABSENT. INVALID — повреждён сохранённый действующий бандл без резервной копии; новый недостоверный бандл состояние не меняет | SENTINEL_CORE_DESIGN.md §6.3, §10.2; TC-CORE-17, TC-CORE-18 |
+| R4-11 (MEDIUM) | TC-CORE-27 допускал загрузку бандла с `uninspected_only` в `InspectionOnly`. Нарушения состава отклоняют бандл в обоих режимах | SENTINEL_CORE_DESIGN.md §6.7; TC-CORE-27 |
+| R4-12 (MEDIUM) | Вариант C был неполон: не определены шаги 3 и 4. Добавлены вычисление атома и допустимое основание с `uninspected_only` | SENTINEL_CORE_DESIGN.md §6.4; TC-CORE-28 |
+| R4-13 (MEDIUM) | Цикл в графе crates (`sentinel-core` ↔ базовые crates). Фасад зависит от базовых crates, не наоборот; правило ацикличности; диаграмма дополнена `sentinel-worker-host` | SENTINEL_CORE_DESIGN.md §2.2; TC-CORE-22 |
+| R4-14 (LOW) | Ссылки: TC-CORE-16 — шаг 6; SENTINEL_CORE_DESIGN.md §5 — шаг 7; матрица трассировки — функции загрузки вместо `verify_and_load` | SENTINEL_CORE_TEST_PLAN.md |
+| Дополнительно | Заголовок журнала (дата), строка проверок, диапазон открытых вопросов O-01…O-13; golden-ожидания G-09 и G-10 | CHANGELOG.md, SENTINEL_CORE_TEST_PLAN.md §5 |
+
+D-01…D-17 и принятые ADR не изменены. O-01, O-02, O-11 и S-01 остаются Pending. UX Direction Proposal (CHG-0006) в CHG-0005 не входит.
+
+### CHG-0005, ревизия 2 — исправления по архитектурному ревью (2026-11-12)
+
+| ID | Исправление | Где |
+| --- | --- | --- |
+| CHG5-AR-01 (HIGH) | `ContentDigest`: полный хеш только при полном последовательном чтении; доверие `TRUSTED_SNAPSHOT` только при заявленном хостом неизменном источнике и неизменной длине; хеш прочитанных диапазонов не используется для кэша и TOCTOU; изменение длины → `CONTENT_CHANGED` | SENTINEL_CORE_DESIGN.md §3, §3.2; INV-C8; TC-CORE-26 |
+| CHG5-AR-02 (HIGH) | Снята гарантия «всегда возвращает Decision». `evaluate` возвращает `Result` с `EngineFault`; таблица отказов процесса, IPC, `panic=abort`, памяти, стека и зависания с ответственностью хоста; обязательство хоста INV-H1 | SENTINEL_CORE_DESIGN.md §2.3, §10.2; TC-CORE-13, TC-CORE-29 |
+| CHG5-AR-03 (HIGH) | Повторная проверка бандла по ADR-0016 и ADR-0019: платформа, BLOCK_CAPABLE с `verified_by` для платформы, канала и операции, записи исключений, `on_indeterminate = BLOCK`, UNSUPPORTED; отметка `capability_check = SKIPPED` без манифеста; потеря возможности во время работы — у PEP | SENTINEL_CORE_DESIGN.md §6.1, §6.7; INV-C9; TC-CORE-27, TC-SCAN-11 |
+| CHG5-AR-04 (HIGH) | Разделены `text_coverage` и `object_coverage`; `NO_MATCH` только при полном тексте и всех разобранных частях; предложен безопасный вариант C для O-11, вариант B снят | SENTINEL_CORE_DESIGN.md §4.2, §5; INV-C4; TC-CORE-04, TC-CORE-28 |
+| CHG5-AR-05 (HIGH) | CLI: по умолчанию изолированный рабочий процесс; без него OOXML и PDF не разбираются (`ISOLATION_REQUIRED`); режим разработчика — только явно, с предупреждением и отказом при правах администратора; механизм песочницы не выбран | SENTINEL_SCAN_CLI_DESIGN.md §1, §7; TC-SCAN-10 |
+| CHG5-AR-06 (MEDIUM) | Узкий фасад `sentinel-core-extract-api` для рабочего процесса; проверка графа каждого артефакта по списку разрешённых зависимостей | SENTINEL_CORE_DESIGN.md §2.2; TC-CORE-22 |
+| CHG5-AR-07 (MEDIUM) | CLI: по умолчанию непрозрачный `input_id`, без путей и SHA-256; диагностическое раскрытие только явным параметром с предупреждением | SENTINEL_SCAN_CLI_DESIGN.md §4.2, §5; TC-SCAN-05 |
+| CHG5-AR-08 (MEDIUM) | `required_action = NONE` удалён; отсутствие правила — `decision_basis = NO_RULE_MATCHED` без `required_action`, зависимость DATA_MODEL.md; приоритет кодов выхода CLI | SENTINEL_CORE_DESIGN.md §5, §6.3; SENTINEL_SCAN_CLI_DESIGN.md §4.3; TC-CORE-30, TC-SCAN-03 |
+| Дополнительно | Определение TXT и CSV без сигнатуры, полиглоты; O-12 | SENTINEL_CORE_DESIGN.md §4.3; TC-CORE-01 |
+
+O-01, O-02, O-11 и S-01 остаются Pending.
+
+### CHG-0005, ревизия 3 — целевые исправления по ревью ревизии 2 (2026-11-12)
+
+| ID | Исправление | Где |
+| --- | --- | --- |
+| CHG5-AR2-01 (HIGH) | Доверие к хешу определяется происхождением снимка, а не заявлением хоста: в v0.1 доверенное происхождение одно — `CORE_OWNED_BUFFER`; дескрипторы, запечатанная память и теневая копия — `UNTRUSTED` до SPIKE (O-13); обязательство хоста INV-H2; изменение содержимого при той же длине; нет гарантии L3 | SENTINEL_CORE_DESIGN.md §3, §3.2; TC-CORE-26 |
+| CHG5-AR2-02 (HIGH) | Режимы загрузки `EnforcementReady` и `InspectionOnly` — разные типы результата; `SKIPPED` только в `InspectionOnly`; PEP не принимает `InspectionOnly`; `policy verify` выводит раздельно `signature` и `enforceability` | SENTINEL_CORE_DESIGN.md §2.3, §6.7; SENTINEL_SCAN_CLI_DESIGN.md §2, §3; TC-CORE-27, TC-CORE-31, TC-SCAN-11, TC-SCAN-12 |
+| CHG5-AR2-03 (HIGH) | Условие `uninspected_parts ⊆ {IMAGE}` заменено атомом `uninspected_only(kinds)`: полное перечисление структуры, непустой перечень, без `UNKNOWN`, правило с ограниченной областью и утверждением; при неполном перечислении — UNKNOWN и fallback; O-11 Pending | SENTINEL_CORE_DESIGN.md §4.2, §6.7; TC-CORE-28 |
+| CHG5-AR2-04 (HIGH) | Разделены вердикт PDP, отсутствие вердикта, fallback хоста и автономный fallback PEP; поля `decision_origin` и `inspection_origin`; INDETERMINATE за непрочитавший PDP не синтезируется; INV-H1 уточнён; ADR-0016 не изменён | SENTINEL_CORE_DESIGN.md §2.3, §10.2; TC-CORE-29 |
+| CHG5-AR2-05 (MEDIUM) | Снято противоречие о размещении этапов в CLI; три последовательности; компоненты `sentinel-worker-host` (вне ядра) и `sentinel-extract-worker` | SENTINEL_CORE_DESIGN.md §2.2, §4; SENTINEL_SCAN_CLI_DESIGN.md §1, §7.1; TC-SCAN-08, TC-SCAN-10 |
+| CHG5-AR2-06 (MEDIUM) | Нормативна семантика FAILURE_MODE_DESIGN.md §6.1 (варианты A); варианты B и C — предложения; golden-ожидания G-01…G-08 по каждому варианту | SENTINEL_CORE_DESIGN.md §6.3, §6.4; SENTINEL_CORE_TEST_PLAN.md §5; TC-CORE-11, -12, -25 |
+
+O-01, O-02, O-11 и S-01 остаются Pending Approval. UX Direction Proposal (CHG-0006) в CHG-0005 не входит.
 
 ## CHG-0004 — Решения D-12…D-17 по конфликтам C-01…C-06; ADR-0018, ADR-0019
 
@@ -27,7 +232,19 @@
 | Миграции | Нет |
 | Результаты проверок | Выполнены локально 2026-11-11, подробности — раздел «CHG-0004: проверки» ниже |
 | Откат | До фиксации — не применять патч. После фиксации — `git revert` |
-| Статус | Ревизия 2 по CHG-0004 Architecture Review (Changes Requested, narrow corrections) от 2026-11-12. Подготовлено локально как патч поверх дерева PR #1. В Git не зафиксировано; PR не создавался; PR #1 не изменялся. Продуктовые механизмы — NOT VERIFIED |
+| Статус | Ревизия 2 по CHG-0004 Architecture Review (Changes Requested, narrow corrections) от 2026-11-12. Подготовлено локально как патч поверх дерева PR #1. В Git не зафиксировано; PR не создавался; PR #1 не изменялся. Продуктовые механизмы — NOT VERIFIED. **Обновление 2026-11-12:** Release Candidate Accepted; опубликовано и влито в `develop` (раздел «CHG-0004: публикация и merge») |
+
+### CHG-0004: публикация и merge (2026-11-12)
+
+| Шаг | Дата | Результат |
+| --- | --- | --- |
+| Release Candidate | 2026-11-12 | Accepted. Патч SHA-256 `2ff1670a9e1b249a877c1352ec765afed3c43a56883f40bd39c71f542b71db17`; 44 + 13 проверок PASS |
+| Preflight после merge PR #1 | 2026-11-12 | `develop@322dade`, дерево `1defee0`; `git apply --check --whitespace=error-all` без замечаний; итоговое дерево `17cbb22` |
+| Коммит и push по D-10 | 2026-11-12 | Коммит `448134651987511fc36621df82119562f7db83e5` (родитель `322dade`, дерево `17cbb22c8e7562a6e38cfa315435b1c28e40334e`) в `docs/chg-0004`; push без force |
+| PR #2 | 2026-11-12 | Draft PR `docs/chg-0004` → `develop`, 15 файлов; независимое ревью — PASS |
+| Merge | 2026-11-12 | Влит владельцем merge-коммитом `51422176cd3f56ecc62360f1549e402253a3bd07` (родители `322dade`, `448134`; дерево `17cbb22`). `main` не изменялся |
+
+Хронология ревизий 1 и 2 ниже сохранена без изменений. Продуктовые механизмы — NOT VERIFIED.
 
 ### CHG-0004, ревизия 2 — узкие исправления по архитектурному ревью (2026-11-12)
 
@@ -82,7 +299,7 @@
 | Миграции | Нет |
 | Результаты проверок | Ревизия 4.1, выполнены локально 2026-11-11 (подробности — разделы «ревизия 4.1» и «ревизия 4» ниже). **PASS:** изменены только `docs/**/*.md` (TC-D10-01); секреты, персональные данные, HTML и скрипты, встроенные инструкции и управляющие символы не найдены; внешние ссылки только из ожидаемого списка (TC-D10-02); относительные ссылки и пути разрешаются; 88 ID функций уникальны и определены; T-01…T-33 определены, у каждой угрозы есть карточка и проверка; R-01…R-24, D-01…D-11, Q-01…Q-09 и 122 тест-кейса определены (TC-D10-07); у каждого тест-кейса есть колонка «Критерий» с проверяемым условием, включая TC-SEC-01…12; 440 ссылок «ФАЙЛ.md §N» указывают на существующие заголовки (проверяется существование заголовка, а не смысл ссылки; смысл ссылок на изменённые разделы проверен вручную); у каждого критерия fault injection и сценария есть критерий; у каждой функции раздела 1 реестра есть критерий и тест; статусы ADR совпадают с реестром; 106 функций FID сопоставлены, 35 кандидатов совпадают с RECON-0001; во всех таблицах одинаковое число ячеек; патчи применяются без предупреждений `git apply`. **NOT RUN / NOT VERIFIED:** защита веток и права токена (TC-D10-05, TC-D10-06), `git push --dry-run` (TC-D10-04). Продуктовые тесты не применимы: кода нет |
 | Откат | До фиксации — не применять патч. После фиксации — `git revert` |
-| Статус | Design Accepted (решение владельца от 2026-11-11) с редакционной корректировкой ревизии 4.1. Подготовлено локально как патч; в Git не зафиксировано; Git-операции — отдельным согласованием по D-10. Продуктовые механизмы — NOT VERIFIED |
+| Статус | Design Accepted (решение владельца от 2026-11-11) с редакционной корректировкой ревизии 4.1. Подготовлено локально как патч; в Git не зафиксировано; Git-операции — отдельным согласованием по D-10. Продуктовые механизмы — NOT VERIFIED. **Обновление 2026-11-12:** CHG-0002 и CHG-0003 опубликованы одним коммитом `87c610be23e1df81f1f9f6119d2dba4344ebc44f` (PR #1, 2026-11-11) и влиты в `develop` владельцем 2026-11-12 merge-коммитом `322dade79ca872baae192a2c5a10807a1ce9dafc` (дерево `1defee0279b620812848171ca279e55b722d7125`) |
 
 ### CHG-0003, ревизия 4.1 — редакционная корректировка после Final Architecture Approval (2026-11-11)
 
@@ -236,7 +453,7 @@
 | Миграции | Нет |
 | Результаты тестирования | Не применимо: изменения только в документации |
 | Откат | `git revert` коммита с этими файлами после фиксации; до фиксации — отказ от применения патча |
-| Статус | Подготовлено локально как патч; в Git не зафиксировано |
+| Статус | Подготовлено локально как патч; в Git не зафиксировано. **Обновление 2026-11-12:** опубликовано вместе с CHG-0003 (PR #1) и влито в `develop` |
 
 ## CHG-0001 — Первоначальная документация в ветке feature/initial-documentation (историческая запись)
 
