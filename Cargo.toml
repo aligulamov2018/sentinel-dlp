@@ -1,0 +1,24 @@
+# Sentinel DLP — Cargo workspace (CHG-0005, этап 1: sentinel-core-types и sentinel-core-pdp).
+# Только стандартная библиотека Rust; внешних crates нет (решение владельца 2026-11-12).
+# Состав и границы crates — docs/architecture/SENTINEL_CORE_DESIGN.md §2.1, §2.2.
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/sentinel-core-types",
+    "crates/sentinel-core-pdp",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+todo = "deny"
+unimplemented = "deny"

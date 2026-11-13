@@ -1,0 +1,11 @@
+[package]
+name = "sentinel-core-types"
+description = "Контракты sentinel-core: результаты инспекции, контекст решения, действительность отступлений, решение PDP (SENTINEL_CORE_DESIGN.md §3, §5, §6.8)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]

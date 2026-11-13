@@ -1,0 +1,12 @@
+[package]
+name = "sentinel-core-pdp"
+description = "PDP sentinel-core: модель политики, структурная проверка бандла, алгоритм оценки (SENTINEL_CORE_DESIGN.md §6)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+sentinel-core-types = { path = "../sentinel-core-types" }
