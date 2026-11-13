@@ -3,8 +3,8 @@
 | Атрибут | Значение |
 | --- | --- |
 | Назначение | Единый каталог функций Sentinel DLP (CLAUDE.md §8) |
-| Версия | 5 (CHG-0004: решения D-12…D-17; ранее — ревью AR-01…AR-08, SR2-01…SR2-04, SR3-02) |
-| Дата | 2026-11-11 |
+| Версия | 7 (CHG-0007 rev3.2: ограничение DLP-DETECTION-005 для PDP v0.1 по решению CHG7-OD2; 6 — CHG-0007: DLP-POLICY-001, -002, -003, -011 — In Progress по TR-0001; 5 — CHG-0004: решения D-12…D-17; ранее — ревью AR-01…AR-08, SR2-01…SR2-04, SR3-02) |
+| Дата | 2026-11-13 |
 | Статус документа | Proposed — на архитектурном ревью |
 | Основание | ARCH-0001 §12; D-03, D-05…D-08, D-12…D-17; RECON-0001 |
 | Связанные документы | docs/ROADMAP.md, docs/SYSTEM_ARCHITECTURE.md, docs/architecture/DOCUMENTATION_RECONCILIATION.md, docs/TEST_STRATEGY.md |
@@ -33,13 +33,13 @@
 | DLP-DETECTION-005 | Словари ключевых слов с весами | Detection Engine | MVP | Proposed | D-03 | Нормализация регистра и Unicode, включая русский язык | Unit |
 | DLP-DETECTION-006 | Маскирование совпадений до выхода из процесса инспекции | Detection Engine | MVP | Proposed | D-03, D-07 | Открытые значения не покидают инспекцию; правила DATA_PROTECTION_DESIGN.md §3 | TC-D07-07, TC-D07-09 |
 | DLP-DETECTION-015 | Метрики precision и recall на эталонном корпусе | Detection Engine | MVP | Proposed | D-03 | Метрики по каждому детектору записаны в TEST_RESULTS.md | Корпус |
-| DLP-POLICY-001 | Схема политик: область, условия, действия, исключения | Policy Engine | MVP | Proposed | D-03 | Схема валидируется; неизвестные атрибуты обрабатываются явным правилом | Unit, Contract |
-| DLP-POLICY-002 | Детерминированная оценка и разрешение конфликтов по приоритету | Policy Engine | MVP | Proposed | D-03 | Golden-тесты: одинаковый вход → одинаковое решение | Golden |
-| DLP-POLICY-003 | Объяснение решения | Policy Engine | MVP | Proposed | D-03 | Объяснение содержит версию, правила, в том числе проигравшие, детекторы, причину | Golden |
+| DLP-POLICY-001 | Схема политик: область, условия, действия, исключения | Policy Engine | MVP | In Progress (CHG-0007: IR и структурная проверка SENTINEL_CORE_DESIGN.md §6.7 без подписи, манифеста и формата бандла; O-05, O-06 открыты) | D-03 | Схема валидируется; неизвестные атрибуты обрабатываются явным правилом | Unit, Contract; TR-0001 |
+| DLP-POLICY-002 | Детерминированная оценка и разрешение конфликтов по приоритету | Policy Engine | MVP | In Progress (CHG-0007: алгоритм SENTINEL_CORE_DESIGN.md §6.3 реализован; G-01…G-30 и оракул PASS; побайтный детерминизм на двух ОС — NOT RUN, ИТ-13) | D-03 | Golden-тесты: одинаковый вход → одинаковое решение | Golden; TR-0001 |
+| DLP-POLICY-003 | Объяснение решения | Policy Engine | MVP | In Progress (CHG-0007: `Explanation` SENTINEL_CORE_DESIGN.md §6.6 реализовано; сериализация — нет) | D-03 | Объяснение содержит версию, правила, в том числе проигравшие, детекторы, причину | Golden; TR-0001 |
 | DLP-POLICY-004 | Подписанный бандл политики, защита от отката | Policy Engine | MVP | Proposed | D-03, D-05 | Неподписанный или устаревший бандл отвергается | TC-D05-05 |
 | DLP-POLICY-005 | Офлайн-исполнение по кэшированной политике | Policy Engine | MVP | Proposed | D-03, D-05 | Решения не зависят от доступности сервера | TC-D06-01, TC-D05-06 |
 | DLP-POLICY-006 | Режимы Monitor, Alert, Block | Policy Engine | MVP | Proposed | D-03, D-05 | Блокирующее правило публикуется только после периода Monitor | Unit, Integration |
-| DLP-POLICY-011 | Контракт вердикта ALLOW / BLOCK / INDETERMINATE с причинами | Policy Engine | MVP | Proposed | D-05 | INDETERMINATE всегда с причиной из FAILURE_MODE_DESIGN.md §2.3 | Unit, TC-D05-08 |
+| DLP-POLICY-011 | Контракт вердикта ALLOW / BLOCK / INDETERMINATE с причинами | Policy Engine | MVP | In Progress (CHG-0007: типы §5 и вердикт PDP; интеграция с хостом и PEP — нет) | D-05 | INDETERMINATE всегда с причиной из FAILURE_MODE_DESIGN.md §2.3 | Unit, TC-D05-08; TR-0001 |
 | DLP-POLICY-012 | Fallback `on_indeterminate` по каналу и операции с ограничениями компиляции | Policy Engine | MVP | Proposed | D-05, D-17 | BLOCK допускается только для защищаемых операций на подтверждённых платформах; без подтверждённого BLOCK_CAPABLE — ошибка компиляции даже при исключении понижения основного BLOCK (ADR-0019) | TC-D08-02, TC-D17-03 |
 | DLP-POLICY-013 | Срок действия политики: `soft_ttl`, `hard_expiry_at`, сохраняемое между перезагрузками время, защита от отката часов; поведение после истечения — Proposed | Policy Engine | MVP | Proposed | D-05 | Откат часов, восстановление старого `time_state` и перезагрузки не продлевают разрешающие отступления; нет глобальной блокировки и глобального fail-open (INV-T1…T5) | TC-D05-06, TC-D05-13…16, TC-D05-19…21 |
 | DLP-POLICY-014 | Уровень передачи данных в действии правила (METADATA, MASKED_MATCH, FULL_EVIDENCE) и уровень пути (`path_level`) | Policy Engine | MVP (без FULL_EVIDENCE) | Proposed | D-07, D-16 | По умолчанию METADATA и псевдоним пути; MASKED_MATCH — только по явному действию правила; полный путь — только по явному уровню FULL; FULL_EVIDENCE выключен на уровне платформы и не включается до Q-04 | TC-D07-09, TC-D07-10, TC-D16-01 |
@@ -205,3 +205,5 @@
 | 2026-11-10 | Ревизия 3 по ревью раунда 2: добавлена DLP-ENDPOINT-020 (исследование TPM, SR2-01); уточнены DLP-POLICY-013, DLP-ENDPOINT-014, -018, DLP-CORE-003, -011, DLP-POLICY-015 | CHG-0003 rev3 |
 | 2026-11-11 | Ревизия 4 по ревью раунда 3: уточнена DLP-ENDPOINT-004 (маркеры в слоте первого неотправленного события, `IN_FLIGHT`, `TELEMETRY_INCOMPLETE`, SR3-02). Новые функции не добавлялись; статусы не менялись | CHG-0003 rev4 |
 | 2026-11-11 | Решения D-12…D-17: добавлена DLP-ENDPOINT-021 (D-14); уточнены DLP-POLICY-012, -014, -015, DLP-ENDPOINT-015, DLP-INCIDENT-003 и примечания DLP-CORE-009, DLP-DETECTION-007, DLP-ENDPOINT-001, -005, DLP-NETWORK-001, -002, FID/DLP-NETWORK-004; раздел 3.3 — пометки решений. Статусы функций не менялись: все Proposed | CHG-0004 |
+| 2026-11-13 | Этап 1 реализации `sentinel-core` (локально, не зафиксировано): DLP-POLICY-001, -002, -003, -011 — Proposed → In Progress по результатам TR-0001 (TEST_RESULTS.md). DLP-POLICY-012 и -015 затронуты частично (fallback и передача исключений ADR-0019), статус не менялся: ограничения компиляции и манифест возможностей не реализованы. Ни одна функция не Implemented: загрузчика бандла с подписью нет (DLP-POLICY-004 — Proposed) | CHG-0007 |
+| 2026-11-13 | Решение владельца CHG7-OD2 (ИТ-10, вариант «а»): модель миров PDP v0.1 поддерживает только детекторы с порогом по количеству совпадений. Для DLP-DETECTION-005 (словари с весами) пороги по `score` в PDP v0.1 не поддерживаются и не могут интерпретироваться как пороги по количеству; поддержка — отдельный CHG; требование к загрузчику и компилятору — KNOWN_ISSUES.md KI-08. Статусы функций не менялись | CHG-0007 rev3.2 |
