@@ -3,7 +3,7 @@
 | Атрибут | Значение |
 | --- | --- |
 | Назначение | Журнал фактически выполненных прогонов тестов и проверок качества (CLAUDE.md §10, SENTINEL_CORE_DESIGN.md §11). Записывается только то, что запускалось; невыполненное — NOT RUN / NOT VERIFIED |
-| Версия | 6 (TR-0006 — CHG-0007 rev3.3; TR-0005 — rev3.2; TR-0004 — rev3.1; TR-0003 — rev3; TR-0002 — rev2) |
+| Версия | 7 (TR-0007 — PR5-1, независимый прогон коммита `eba5baac`, влитого в `develop`; 6 — TR-0006 — CHG-0007 rev3.3; TR-0005 — rev3.2; TR-0004 — rev3.1; TR-0003 — rev3; TR-0002 — rev2) |
 | Дата изменения | 2026-11-13 |
 | Статус | Active |
 | Связанные документы | docs/TEST_STRATEGY.md, docs/architecture/SENTINEL_CORE_TEST_PLAN.md, docs/architecture/SENTINEL_CORE_IMPL_STAGE1.md, docs/CHANGELOG.md |
@@ -14,10 +14,32 @@
 
 | Компонент | Последний прогон | Результат | Границы |
 | --- | --- | --- | --- |
-| `sentinel-core-types`, `sentinel-core-pdp` (PDP, SENTINEL_CORE_DESIGN.md §6.3–§6.8) | TR-0006, 2026-11-13 (rev3.3; команда) | 63/63 PASS (59 unit + 4 compile-fail-доктеста) | Только PDP; подпись, парсеры, детекторы, CLI, хост — NOT RUN. Rust-прогоны ревьюер не повторял; ревьюер независимо подтвердил пакет rev3.2: 36/36, дерево `3a4009de`, профиль 63/63, самопроверку 23/23 |
+| `sentinel-core-types`, `sentinel-core-pdp` (PDP, SENTINEL_CORE_DESIGN.md §6.3–§6.8) | TR-0007, 2026-11-13 (коммит `eba5baac`, влит в `develop` merge-коммитом `c2e33057`; независимый ревьюер, Windows GNU); TR-0006, 2026-11-13 (rev3.3; команда, Linux) | 63/63 PASS (59 unit + 4 compile-fail-доктеста); build, clippy, fmt — PASS | Только PDP; подпись, парсеры, детекторы, CLI, хост — NOT RUN. Rust-проверки независимо подтверждены только на Windows GNU / Rust 1.97.0 (TR-0007); Windows MSVC и macOS — NOT RUN. Независимые подтверждения пакетов — KNOWN_ISSUES.md KI-02 |
 | Все остальные компоненты | — | NOT RUN | Кода нет |
 
 ## 2. Прогоны
+
+### TR-0007 — PR5-1, независимый прогон коммита `eba5baac` (Windows), 2026-11-13
+
+| Поле | Значение |
+| --- | --- |
+| Объект | Коммит `eba5baac29d3f520e7b97cbe39b43aaf096dbef4`, дерево `86323556a0f6063a454103f4d8a9029839782b02`, 58 файлов — содержимое PR #5. Тем же деревом обладает merge-коммит `c2e330576029cee343c55b807e87eb92e8d227c5` в `develop` |
+| Среда | Windows 11 build 26100, AMD64; Rust 1.97.0 (`2d8144b78` 2026-07-07), хост `x86_64-pc-windows-gnu`, LLVM 22.1.6; компоненты cargo, rustc, rust-std, rust-mingw, clippy, rustfmt. Установка — официальный `rustup-init.exe` с проверкой SHA-256, `--no-modify-path`; каталоги toolchain — внутри проверочной папки |
+| Исполнитель | **Независимый ревьюер Codex**, отдельная сессия на компьютере владельца (решение PR5-1 от 2026-11-13, DECISION_LOG.md §7). Команда в прогоне не участвовала |
+| Протоколы | `PR5-1-independent-windows-report.tar.gz`, SHA-256 `8c32d9532dee705a8a0bcc42b070b14de02bf5170e3e168d411b44d595aa29af`; манифест — 22 файла; хранится у владельца, в репозиторий не входит |
+
+| Проверка | Команда | Результат |
+| --- | --- | --- |
+| Соответствие исходников | Побайтное извлечение проверенного архива дерева, пересчёт хешей файлов и дерева, сверка с GitHub API (ревьюер); сверка 58 записей `source-verification.json` с `git ls-tree -r eba5baac` и манифеста архива 22/22 (команда) | PASS; файлов с CRLF — 0; после прогона исходники не изменились |
+| Зависимости | `cargo metadata --offline --locked --format-version 1` | Код 0; только два crate workspace |
+| Build | `cargo build --offline --locked --workspace` | PASS, код 0, предупреждений нет |
+| Тесты | `cargo test --offline --locked --workspace` | PASS: 59 unit (`sentinel-core-pdp`) + 4 compile-fail-доктеста (`sentinel-core-types`); 0 failed, 0 ignored, 0 filtered out |
+| Clippy | `cargo clippy --offline --locked --workspace --all-targets -- -D warnings` | PASS, код 0 |
+| Формат | `cargo fmt --all -- --check` | PASS, код 0 |
+| Профиль CHG-0007 и общий валидатор | — | В рамках этого Rust-прогона не повторялись. Независимо проверены ранее, в ревью rev3.3 (KNOWN_ISSUES.md KI-02) |
+| Shell-проверки (`test_run_all_checks.sh`, `run_all_checks.sh`) | — | Независимо не запускались; только команда (TR-0004…TR-0006) |
+| Windows MSVC, macOS, другие версии Rust; TC-CORE-15 | — | NOT RUN |
+
 
 ### TR-0006 — CHG-0007 rev3.3 (редакционная правка спецификаций, CHG7-OD6), 2026-11-13
 
