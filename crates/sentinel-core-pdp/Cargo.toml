@@ -10,3 +10,7 @@ workspace = true
 
 [dependencies]
 sentinel-core-types = { path = "../sentinel-core-types" }
+
+[dev-dependencies]
+# Только для тестов: каноническое представление (CHG-0008). В обычной сборке функция выключена.
+sentinel-core-types = { path = "../sentinel-core-types", features = ["canonical"] }
