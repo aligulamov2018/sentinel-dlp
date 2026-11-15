@@ -9,3 +9,8 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
+
+[features]
+# Каноническое представление для проверки детерминизма (CHG-0008, CF-16). Выключено по
+# умолчанию; включается в тестах через [dev-dependencies]. Не граница безопасности.
+canonical = []

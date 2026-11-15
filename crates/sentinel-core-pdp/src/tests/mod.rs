@@ -2,6 +2,7 @@
 //! docs/architecture/SENTINEL_CORE_TEST_PLAN.md §5 и не вычисляются функциями алгоритма.
 //! Свойства (oracle.rs) сверяются с независимым перебором, написанным отдельно от алгоритма.
 
+mod canonical;
 mod contract;
 mod golden;
 mod oracle;
