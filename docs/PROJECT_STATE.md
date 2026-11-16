@@ -3,15 +3,17 @@
 | Атрибут | Значение |
 | --- | --- |
 | Назначение | Текущее состояние проекта; читается в начале каждой сессии (CLAUDE.md §14) |
-| Версия | 30 |
-| Дата изменения | 2026-11-15 |
+| Версия | 31 |
+| Дата изменения | 2026-11-16 |
 | Статус | Active |
 
 ## Current Phase
 Architecture & Requirements (фаза 0) → начало реализации. CHG-0005 — Design Accepted и влит в `develop`. Этап 1 реализации `sentinel-core` (CHG-0007: workspace, `sentinel-core-types`, `sentinel-core-pdp`) влит в `develop` 2026-11-13 (merge-коммит `c2e33057`); запись его закрытия (PR5-3) — 2026-11-14 (merge-коммит `99afc5cb`). CHG-0008 (каноническое представление `Decision` и `InspectionResult`) — контракт утверждён (CD-1…CD-8), реализация разрешена (CD-10, 2026-11-14) и выполнена локально; не зафиксирована
 
+Э-1: контракт определения класса и извлечения TXT, CSV (docs/architecture/SENTINEL_CORE_E1_TEXT_CONTRACT.md) переведён в Designed (CHG-0010, 2026-11-16) для профиля V1 в `InspectionOnly`. Реализация Э-1 не разрешена.
+
 ## Project Status
-Базовая архитектура частично согласована (D-01…D-17; D-13 — предварительно, D-14 и D-15 — в принципе). CHG-0002…CHG-0005, CHG-0007 и запись его закрытия находятся в `develop` (`99afc5cb55721628826a3d23018d53b4eb225c18`, дерево `5c81d865`); `main` — `12e3d5c`. CHG-0008 — локально, в ветке `impl/chg-0008-canonical` (TEST_RESULTS.md TR-0008, проверки команды). В `develop` реализованы и проверены типы контрактов ядра и PDP: `cargo test` 63/63 (59 unit + 4 compile-fail-доктеста), clippy и fmt — PASS: TR-0006 (команда, Linux) и TR-0007 (независимый ревьюер, Windows GNU / Rust 1.97.0). Профиль CHG-0007 rev3.3 и пакет независимо подтверждены ревью rev3.3; shell-проверки — только командой (KNOWN_ISSUES.md KI-02). Результат профиля в TR-0002 получен дефектным профилем (CHG7-R4). DLP-POLICY-001, -002, -003, -011 — In Progress; остальные функции — Proposed; механизмы вне PDP — NOT VERIFIED. Толкования контракта: уточнения класса B и вариант «а» ИТ-10 утверждены владельцем (CHG7-OD1, CHG7-OD2, 2026-11-13) и применены к SENTINEL_CORE_DESIGN.md и FAILURE_MODE_DESIGN.md; score-пороги детекторов в PDP v0.1 не поддерживаются (KNOWN_ISSUES.md KI-08). Commit, push, PR и изменение настроек репозитория — только по отдельным решениям владельца. Не Production Ready.
+Базовая архитектура частично согласована (D-01…D-17; D-13 — предварительно, D-14 и D-15 — в принципе). CHG-0002…CHG-0005, CHG-0007 и запись его закрытия находятся в `develop` (`99afc5cb55721628826a3d23018d53b4eb225c18`, дерево `5c81d865`); `main` — `12e3d5c`. CHG-0008 — локально, в ветке `impl/chg-0008-canonical` (TEST_RESULTS.md TR-0008, проверки команды). В `develop` реализованы и проверены типы контрактов ядра и PDP: `cargo test` 63/63 (59 unit + 4 compile-fail-доктеста), clippy и fmt — PASS: TR-0006 (команда, Linux) и TR-0007 (независимый ревьюер, Windows GNU / Rust 1.97.0). Профиль CHG-0007 rev3.3 и пакет независимо подтверждены ревью rev3.3; shell-проверки — только командой (KNOWN_ISSUES.md KI-02). Результат профиля в TR-0002 получен дефектным профилем (CHG7-R4). DLP-POLICY-001, -002, -003, -011 — In Progress; DLP-DETECTION-001 и часть TXT, CSV у DLP-DETECTION-002 — Designed (CHG-0010, профиль V1 в `InspectionOnly`; кода нет); часть OOXML у DLP-DETECTION-002 и остальные функции — Proposed; механизмы вне PDP — NOT VERIFIED. Толкования контракта: уточнения класса B и вариант «а» ИТ-10 утверждены владельцем (CHG7-OD1, CHG7-OD2, 2026-11-13) и применены к SENTINEL_CORE_DESIGN.md и FAILURE_MODE_DESIGN.md; score-пороги детекторов в PDP v0.1 не поддерживаются (KNOWN_ISSUES.md KI-08). Commit, push, PR и изменение настроек репозитория — только по отдельным решениям владельца. Не Production Ready.
 
 ## Completed
 - GitHub repository created
@@ -37,6 +39,7 @@ Architecture & Requirements (фаза 0) → начало реализации. 
 - PR5-3 — запись закрытия CHG-0007: опубликована по разовому разрешению D10-OP-PR53 (риск PF-7 принят только для этой операции): коммит `9ba484c0` (дерево `5c81d865`) в `docs/chg-0007-closure`, Draft PR #6; PF-0…PF-8 и PV-1…PV-5 — PASS (команда). PR #6 переведён владельцем в Ready (2026-11-14 15:55:09 UTC) и влит им (15:55:15 UTC) merge-коммитом `99afc5cb55721628826a3d23018d53b4eb225c18` (родители `c2e33057`, `9ba484c0`; дерево `5c81d865` совпадает с проверенным); подтверждено независимым ревьюером и чтением команды. Запись — DECISION_LOG.md §7
 
 ## In Progress
+- Э-1 (CHG-0010): контракт — Designed для профиля V1 в `InspectionOnly` (DECISION_LOG.md §7); KI-13…KI-15. Открыто: P-13c…f к приёмке C-7a; подтверждение среды фаззинга; разрешение на локальную реализацию; решение для `EnforcementReady`
 - CHG-0008 — каноническое представление `Decision` и `InspectionResult` (docs/architecture/SENTINEL_CORE_CANONICAL_FORM.md): реализовано локально от `develop@99afc5cb` по CD-1…CD-10. Ревью ревизии 1 — Changes Requested (TR-0009); ревью ревизии 2 — CHG8-IMPL-02…04 закрыты, эталоны D согласованы 15/15, **F-05 PASS** (Windows GNU; область «canonical + PDP на фиксированных `InspectionResult`»; TR-0011). Ревизия 3: эталоны D в тестах, D/F-04(D) PASS, CHG8-IMPL-05 исправлен (TR-0012); контроль ревизии 3 — CHG8-IMPL-01, -05 закрыты, найдены CHG8-IMPL-06, -07 (TR-0013). Ревизия 4: исправлены IMPL-06 (D-SEALED) и IMPL-07 (шапка контракта), проверки команды — TR-0014. Ожидает контроля ревизии 4 и решения владельца о публикации. Commit, push и PR не выполнялись
 - TC-D10-06 — проект разделения учётных данных и ограничений веток (docs/security/REPO_ACCESS_RULESET_DESIGN.md): ожидает решений владельца по разделу 7; ничего не применено
 
@@ -69,3 +72,5 @@ PROJECT_OVERVIEW.md, PRODUCT_REQUIREMENTS.md, FUNCTIONAL_REQUIREMENTS.md, NON_FU
 2. Решения владельца по открытым вопросам CHG-0005; ответы на вопросы DECISION_LOG.md §8 и Q-01…Q-09 (прежде всего Q-03, Q-04, Q-05) и о серверных платформах.
 3. Планы SPIKE-WIN-01 (включая песочницу разбора, замер IPC и сравнение механизмов восстановления), SPIKE-LNX-01, SPIKE-MAC-01; заявки на EV-сертификат и entitlement Apple.
 4. После отдельного разрешения владельца на реализацию (Design Accepted получен) — реализация `sentinel-core` v0.1 и `sentinel-scan` по утверждённому проекту; бенчмарк TC-D14-05 и выбор механизма изоляции разбора.
+5. Э-1 (CHG-0010): подготовка приёмки C-7a — P-13c…f (исполнитель, версии инструментов и dev-зависимостей, nightly, артефакты; SENTINEL_CORE_E1_TEXT_CONTRACT.md §7) и подтверждение среды фаззинга.
+6. Э-1 (CHG-0010): решение владельца о локальной реализации по docs/architecture/SENTINEL_CORE_E1_TEXT_CONTRACT.md; порядок относительно п. 5 не утверждён.

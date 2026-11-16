@@ -3,13 +3,13 @@
 | Атрибут | Значение |
 | --- | --- |
 | Назначение | Единый каталог функций Sentinel DLP (CLAUDE.md §8) |
-| Версия | 10 (ревизия 3 CHG-0008: DLP-POLICY-002 — эталоны D и F-05; 9 — CHG-0008: DLP-POLICY-002, -003 — каноническое представление, TR-0008; исправлена строка фактического состояния; 8 — закрытие CHG-0007: DLP-POLICY-001 — исправлена ссылка на O-06; запись о слиянии PR #5 и TR-0007; 7 — CHG-0007 rev3.2: ограничение DLP-DETECTION-005 для PDP v0.1 по решению CHG7-OD2; 6 — CHG-0007: DLP-POLICY-001, -002, -003, -011 — In Progress по TR-0001; 5 — CHG-0004: решения D-12…D-17; ранее — ревью AR-01…AR-08, SR2-01…SR2-04, SR3-02) |
-| Дата | 2026-11-15 |
+| Версия | 11 (CHG-0010: DLP-DETECTION-001 и DLP-DETECTION-002 (TXT, CSV) — Designed, карточки §1.1; 10 — ревизия 3 CHG-0008: DLP-POLICY-002 — эталоны D и F-05; 9 — CHG-0008: DLP-POLICY-002, -003 — каноническое представление, TR-0008; исправлена строка фактического состояния; 8 — закрытие CHG-0007: DLP-POLICY-001 — исправлена ссылка на O-06; запись о слиянии PR #5 и TR-0007; 7 — CHG-0007 rev3.2: ограничение DLP-DETECTION-005 для PDP v0.1 по решению CHG7-OD2; 6 — CHG-0007: DLP-POLICY-001, -002, -003, -011 — In Progress по TR-0001; 5 — CHG-0004: решения D-12…D-17; ранее — ревью AR-01…AR-08, SR2-01…SR2-04, SR3-02) |
+| Дата | 2026-11-16 |
 | Статус документа | Proposed — на архитектурном ревью |
 | Основание | ARCH-0001 §12; D-03, D-05…D-08, D-12…D-17; RECON-0001 |
 | Связанные документы | docs/ROADMAP.md, docs/SYSTEM_ARCHITECTURE.md, docs/architecture/DOCUMENTATION_RECONCILIATION.md, docs/TEST_STRATEGY.md |
 
-**Фактическое состояние: DLP-POLICY-001, -002, -003, -011 — In Progress (PDP `sentinel-core`, TEST_RESULTS.md TR-0006…TR-0008); остальные функции — Proposed. Функций со статусом Implemented и выше нет.**
+**Фактическое состояние: DLP-POLICY-001, -002, -003, -011 — In Progress (PDP `sentinel-core`, TEST_RESULTS.md TR-0006…TR-0008); DLP-DETECTION-001 и часть TXT, CSV у DLP-DETECTION-002 — Designed (CHG-0010, профиль V1 в `InspectionOnly`; кода нет); часть OOXML у DLP-DETECTION-002 и остальные функции — Proposed. Функций со статусом Implemented и выше нет.**
 
 ## Правила ведения
 
@@ -26,9 +26,9 @@
 
 | ID | Функция | Компонент | Фаза | Статус | Основание | Критерий приёмки (кратко) | Тесты |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| DLP-DETECTION-001 | Определение реального типа файла по сигнатурам | Detection Engine | MVP | Proposed | D-03 | Тип определяется независимо от расширения на эталонном корпусе | Unit, корпус |
-| DLP-DETECTION-002 | Извлечение текста: TXT, CSV, OOXML | Detection Engine | MVP | Proposed | D-03 | Текст извлекается в лимитах ресурсов; превышение лимита → NOT_INSPECTED | Unit, TC-SEC-04 |
-| DLP-DETECTION-003 | Извлечение текста из PDF | Detection Engine | MVP | Proposed | D-03 | То же | Unit, TC-SEC-04 |
+| DLP-DETECTION-001 | Определение реального типа файла по сигнатурам | Detection Engine | MVP | Designed (CHG-0010; профиль V1 в `InspectionOnly`; карточка §1.1) | D-03 | Тип определяется независимо от расширения на эталонном корпусе | Unit, корпус |
+| DLP-DETECTION-002 | Извлечение текста: TXT, CSV, OOXML | Detection Engine | MVP | TXT, CSV — Designed (CHG-0010; профиль V1 в `InspectionOnly`; карточка §1.1); OOXML — Proposed | D-03 | TXT, CSV — по SENTINEL_CORE_E1_TEXT_CONTRACT.md §4.3 и карточке FEATURE_REGISTRY.md §1.1: после принятия CAND остановка по L-1, L-2 или бюджету (E-21…E-23) сохраняет частичный текст — `text_coverage = PARTIAL`, `RESOURCE_EXHAUSTED`; при `budget < n_F` (E-24, до CAND) — исход извлечения `NotInspected(RESOURCE_EXHAUSTED)` без текста. OOXML (Proposed): текст извлекается в лимитах ресурсов; исход при превышении лимита уточняется при проектировании | TXT, CSV — E1-T-11, E1-T-13 и карточка §1.1 (фаззинг: C-7a — приёмка локальной реализации, C-7b / TC-SEC-04 — до Tested); OOXML — Unit, TC-SEC-04 |
+| DLP-DETECTION-003 | Извлечение текста из PDF | Detection Engine | MVP | Proposed | D-03 | Текст PDF извлекается в лимитах ресурсов; точный исход при исчерпании лимита — предмет проектирования функции (правила Э-1 для TXT, CSV не переносятся; в Э-1 PDF — `NotInspected(UNSUPPORTED_FORMAT)`, KNOWN_ISSUES.md KI-15) | Unit, TC-SEC-04 |
 | DLP-DETECTION-004 | Regex-детекторы с валидаторами и порогом количества | Detection Engine | MVP | Proposed | D-03 | Линейное время по длине входа; точность измерена | Unit, DLP-DETECTION-015 |
 | DLP-DETECTION-005 | Словари ключевых слов с весами | Detection Engine | MVP | Proposed | D-03 | Нормализация регистра и Unicode, включая русский язык | Unit |
 | DLP-DETECTION-006 | Маскирование совпадений до выхода из процесса инспекции | Detection Engine | MVP | Proposed | D-03, D-07 | Открытые значения не покидают инспекцию; правила DATA_PROTECTION_DESIGN.md §3 | TC-D07-07, TC-D07-09 |
@@ -67,6 +67,44 @@
 | DLP-INCIDENT-007 | Удаление evidence через crypto-shredding: ключи периода, уничтожение KEK, журнал удалений при восстановлении | Incident Management | Пилот | Proposed | D-07 | Удалённое evidence не расшифровывается после уничтожения KEK периода и не возвращается при восстановлении копии | TC-D07-05, TC-D07-11, TC-D07-12 |
 | DLP-PLATFORM-001 | Безопасное журналирование: список разрешённых полей, ограниченные дампы | Все компоненты | MVP | Proposed | D-07 | Тест с маркером проходит | TC-D07-07 |
 | DLP-PLATFORM-002 | Защита резервных копий: шифрование, раздельные ключи, двойной контроль восстановления | Management Server | Пилот | Proposed | D-07 | Копия без KEK не раскрывает evidence | TC-D07-04 |
+
+### 1.1. Карточки функций со статусом Designed
+
+Нормативный источник — docs/architecture/SENTINEL_CORE_E1_TEXT_CONTRACT.md (далее — контракт). Тесты E1-T-xx — план SENTINEL_CORE_E1_TEXT_CONTRACT.md §9.1, эталоны — §9.2; распределение проверок между двумя функциями — предложение команды (в контракте Э-1 — единый этап). Кода Э-1 нет, все тесты — NOT RUN. Эталоны CE-xx проверены только документной моделью контракта (внешние пакеты, DECISION_LOG.md §7, CHG-0010).
+
+**DLP-DETECTION-001 — определение реального типа файла по сигнатурам (часть Э-1: `identify`)**
+
+| Поле | Значение |
+| --- | --- |
+| Описание | Определение класса объекта по сигнатурам с нулевого смещения и по правилам кандидата в текст без сигнатуры; выбор кодировки TXT/CSV; заявленное расширение на класс не влияет, расхождение фиксируется |
+| Приоритет | MVP |
+| Требования | SENTINEL_CORE_E1_TEXT_CONTRACT.md §2 (SIG-1…SIG-4, EXT-1…EXT-3), §3.2 (ENC-0…ENC-5, ENC-7; ENC-6 исключён профилем), §3.3 (CTL), §3.4 (FRAG-1a, FRAG-1b); решения §0.1 PRF-1, PRF-3, §0.2 APR-3, APR-6, APR-13 |
+| Компонент | Detection Engine (`sentinel-core`, этап Э-1) |
+| Зависимости | SENTINEL_CORE_DESIGN.md §4.3; ADR-0018-untrusted-format-parsing-isolation.md §1; D-03; формат бандла — имена классов (P-15) |
+| API | Эскиз `identify` — SENTINEL_CORE_E1_TEXT_CONTRACT.md §8; сигнатуры окончательно не зафиксированы (P-07) |
+| Модель данных | `Identification`, `FileClass` (имена `zip`, `pdf`, `ole_cfb`, `txt`, `csv`, `unknown` — Proposed), `TextProbe` — SENTINEL_CORE_E1_TEXT_CONTRACT.md §8 |
+| Статус | **Designed** (CHG-0010) для профиля V1 в `InspectionOnly`; реализация не разрешена |
+| Критерии приёмки | E1-T-01, E1-T-02, E1-T-03, E1-T-07, E1-T-08, E1-T-10, E1-T-25, E1-T-28 и эталоны SENTINEL_CORE_E1_TEXT_CONTRACT.md §9.2, на которые они ссылаются |
+| Тесты | SENTINEL_CORE_E1_TEXT_CONTRACT.md §9.1 — NOT RUN |
+| Ограничения | Отсев двоичных форматов не обещается (SENTINEL_CORE_E1_TEXT_CONTRACT.md §2.1). UTF-16 без BOM как кодировка не выбирается. Остаточный риск E16 (Windows-1251, корректный как UTF-8) принят только для `InspectionOnly` (PRF-4). ZIP и PDF — `NotInspected` (KI-15). Числовые значения — KI-13 |
+| История | 2026-11-16 — Proposed → Designed (CHG-0010) |
+
+**DLP-DETECTION-002 — извлечение текста: часть TXT и CSV (Э-1: `extract`)**
+
+| Поле | Значение |
+| --- | --- |
+| Описание | Извлечение текста TXT и CSV в лимитах ресурсов с явным учётом неполного покрытия; сегментация CSV без изменения текста. OOXML не входит (Proposed) |
+| Приоритет | MVP |
+| Требования | SENTINEL_CORE_E1_TEXT_CONTRACT.md §3.5–§3.6 (E-01…E-19, вариант A), §4 (L-0…L-7, B-1…B-11, §4.4, §4.5), §5 (CSV-1…CSV-10), §6 (ORD-1…ORD-4), §7 (FZ-1…FZ-5, C-7a, C-7b); решения §0.1 PRF-1…PRF-4, §0.2 APR-1…APR-14 |
+| Компонент | Detection Engine (`sentinel-core`, этап Э-1) |
+| Зависимости | DLP-DETECTION-001; SENTINEL_CORE_DESIGN.md §4.3, §5, §10.1, §11; ADR-0018-untrusted-format-parsing-isolation.md §4; D-03, D-18; P-11 — требование к Э-2 (детекторы только по тексту) |
+| API | Эскиз `extract_text` — SENTINEL_CORE_E1_TEXT_CONTRACT.md §8 |
+| Модель данных | `TextProbe`, `ExtractionOutcome`, `ExtractedContent`, `ExtractStats`, `TextLimits`, `ExtractBudget`, сегменты CSV — SENTINEL_CORE_E1_TEXT_CONTRACT.md §4.3, §5, §8 |
+| Статус | TXT, CSV — **Designed** (CHG-0010) для профиля V1 в `InspectionOnly`; реализация не разрешена. OOXML — Proposed |
+| Критерии приёмки | E1-T-04…E1-T-06, E1-T-09, E1-T-11…E1-T-24, E1-T-26, E1-T-27 и эталоны SENTINEL_CORE_E1_TEXT_CONTRACT.md §9.2, на которые они ссылаются; фаззинг — рубеж C-7a для приёмки локальной реализации, C-7b до Tested |
+| Тесты | SENTINEL_CORE_E1_TEXT_CONTRACT.md §9.1 — NOT RUN; фаззинг — NOT RUN (P-13c…f открыты) |
+| Ограничения | Числовые значения не откалиброваны (KI-13). Оценка памяти M-1 — проектная (KI-14). ZIP и PDF — `NotInspected` (KI-15). Windows-1251 и подсказки кодировки отложены (PRF-1). Остаточный риск E16 — только `InspectionOnly`. При деградации сегментации CSV (CSV-7, CSV-8) сопоставление по ячейкам пропускает совпадения в сегменте `Tail` (CE-5); поэтому детекторы Э-2 работают только по тексту (P-11-A). E1-T-29 (инвариантность детекторов к L-5) — проверка этапа Э-2. P-13c…f открыты к приёмке C-7a |
+| История | 2026-11-16 — часть TXT и CSV: Proposed → Designed (CHG-0010) |
 
 ## 2. Проектные предложения ARCH-0001 (не утверждены)
 
@@ -210,3 +248,4 @@
 | 2026-11-13 | Закрытие CHG-0007: PR #5 влит владельцем в `develop` merge-коммитом `c2e330576029cee343c55b807e87eb92e8d227c5` (дерево `86323556…` совпадает с проверенным); Rust-проверки независимо подтверждены (TEST_RESULTS.md TR-0007, Windows GNU / Rust 1.97.0). В DLP-POLICY-001 ссылка «O-06» заменена: O-06 относится к `ExtractedContent`, а формат бандла — к POLICY_ENGINE_DESIGN.md. Статусы функций не менялись: DLP-POLICY-001, -002, -003, -011 — In Progress | CHG-0007 |
 | 2026-11-14 | CHG-0008 (локально, не зафиксировано): каноническое представление `Decision` и `InspectionResult` по контракту, утверждённому CD-1…CD-8; реализация — CD-10. DLP-POLICY-002 и -003 — уточнены описания состояния и ссылки на TR-0008; статусы не менялись: In Progress. Строка «Фактическое состояние» приведена к статусам реестра (с 2026-11-13 DLP-POLICY-001, -002, -003, -011 — In Progress). Запись PR5-3 влита в `develop` (PR #6, `99afc5cb`); функциональный объём не менялся | CHG-0008 |
 | 2026-11-15 | CHG-0008, ревизии 2–3 (локально): независимое ревью ревизии 2 — F-05 PASS, эталоны D согласованы; ревизия 3 — эталоны D в тестах, CHG8-IMPL-05. DLP-POLICY-002 — уточнено описание состояния; статусы не менялись: In Progress | CHG-0008 |
+| 2026-11-16 | Контракт Э-1 (docs/architecture/SENTINEL_CORE_E1_TEXT_CONTRACT.md) переведён в Designed для профиля V1 в `InspectionOnly`: DLP-DETECTION-001 и DLP-DETECTION-002 (TXT, CSV) — Proposed → Designed; добавлены карточки §1.1. OOXML и DLP-DETECTION-003 — Proposed. Кода нет | CHG-0010 |
